@@ -639,6 +639,14 @@
     <style>@media(min-width:768px){.celebration-grid{grid-template-columns:1fr 1fr !important;}}</style>
 </div>
 
+<!-- ===== BACKGROUND MUSIC ===== -->
+<audio id="bg-music" loop preload="auto" style="display:none;">
+    <source src="../Anhr/Justin Bieber - DAISIES (Audio).m4a" type="audio/mp4">
+</audio>
+<div id="music-toggle" onclick="toggleMusic()" style="position:fixed;top:1rem;right:1rem;z-index:200;width:2.5rem;height:2.5rem;border-radius:50%;background:rgba(255,255,255,0.7);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.1);transition:all 0.3s;">
+    <span class="material-icons" id="music-icon" style="font-size:1.2rem;color:var(--primary);">volume_off</span>
+</div>
+
 <!-- ===== PROGRESS BAR ===== -->
 <div class="progress-bar" id="progress-bar">
     <div class="progress-dot active" onclick="navigateTo('screen-lock')"></div>
@@ -681,10 +689,32 @@ function checkCode() {
     const input = document.getElementById('lock-input').value;
     if (input === '1609') {
         navigateTo('screen-intro');
+        playMusic();
     } else {
         document.getElementById('lock-error').style.display = 'block';
         document.getElementById('lock-input').value = '';
         setTimeout(() => document.getElementById('lock-error').style.display = 'none', 3000);
+    }
+}
+
+let musicPlaying = false;
+const bgMusic = document.getElementById('bg-music');
+bgMusic.volume = 0.4;
+
+function playMusic() {
+    bgMusic.play().then(() => {
+        musicPlaying = true;
+        document.getElementById('music-icon').textContent = 'volume_up';
+    }).catch(() => {});
+}
+
+function toggleMusic() {
+    if (musicPlaying) {
+        bgMusic.pause();
+        musicPlaying = false;
+        document.getElementById('music-icon').textContent = 'volume_off';
+    } else {
+        playMusic();
     }
 }
 </script>
