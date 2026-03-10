@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Case File #0803 - The Mystery of Love</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link crossorigin href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Caveat:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;700&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        :root {
+            --primary: #e74b70;
+            --primary-dark: #c73358;
+            --primary-light: #ff8fa3;
+            --pastel-blue: #d0efff;
+            --pastel-blue-dark: #b3e0ff;
+            --navy: #0D1B2A;
+            --conan-blue: #4A90E2;
+            --paper: #fffefb;
+            --cream: #fdfbf7;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--pastel-blue);
+            color: #334155;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        .font-handwriting { font-family: 'Caveat', cursive; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        .screen {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            transform: scale(0.95);
+            overflow-y: auto; overflow-x: hidden;
+        }
+        .screen.active { opacity: 1; pointer-events: auto; transform: scale(1); z-index: 10; }
+        .screen.exiting { opacity: 0; transform: scale(1.05); z-index: 5; }
+        .screen::-webkit-scrollbar { width: 4px; }
+        .screen::-webkit-scrollbar-track { background: transparent; }
+        .screen::-webkit-scrollbar-thumb { background: rgba(231,75,112,0.3); border-radius: 2px; }
+
+        .paper-texture {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+        }
+        .glass-card {
+            background: rgba(255,255,255,0.55); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.7); box-shadow: 0 8px 32px rgba(31,38,135,0.12);
+        }
+        .stamp-text { mix-blend-mode: multiply; }
+
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
+        @keyframes fall { 0%{transform:translateY(-10%) rotate(0deg);opacity:0.7} 100%{transform:translateY(110vh) rotate(360deg);opacity:0} }
+        @keyframes stamp-in { 0%{opacity:0;transform:scale(3) rotate(-15deg)} 100%{opacity:1;transform:scale(1) rotate(-12deg)} }
+        @keyframes pulse-glow { 0%,100%{box-shadow:0 0 0 0 rgba(231,75,112,0.4)} 50%{box-shadow:0 0 0 20px rgba(231,75,112,0)} }
+        @keyframes sparkle-border { 0%{border-color:#ec4899;box-shadow:0 0 10px #ec4899} 50%{border-color:#f472b6;box-shadow:0 0 20px #f472b6,0 0 5px #fff} 100%{border-color:#ec4899;box-shadow:0 0 10px #ec4899} }
+        @keyframes bounce-heart { 0%,100%{transform:scale(1)} 50%{transform:scale(1.15)} }
+        @keyframes wiggle { 0%,100%{transform:rotate(-3deg)} 50%{transform:rotate(3deg)} }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes heartbeat { 0%{transform:scale(1)} 14%{transform:scale(1.3)} 28%{transform:scale(1)} 42%{transform:scale(1.3)} 70%{transform:scale(1)} }
+
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-fall { animation: fall 10s linear infinite; }
+        .animate-stamp { animation: stamp-in 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
+        .animate-pulse-glow { animation: pulse-glow 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+        .animate-bounce-heart { animation: bounce-heart 1.5s ease-in-out infinite; }
+        .animate-heartbeat { animation: heartbeat 1.5s ease-in-out infinite; }
+
+        .btn-primary {
+            display:inline-flex; align-items:center; justify-content:center; gap:0.5rem;
+            padding:0.875rem 2rem; background:var(--primary); color:white; font-weight:700; font-size:0.95rem;
+            border-radius:9999px; border:2px solid rgba(255,255,255,0.2); cursor:pointer;
+            transition:all 0.3s; box-shadow:0 10px 30px -10px rgba(231,75,112,0.5);
+            text-transform:uppercase; letter-spacing:0.05em;
+        }
+        .btn-primary:hover { background:var(--primary-dark); transform:translateY(-2px); box-shadow:0 15px 40px -10px rgba(231,75,112,0.6); }
+        .btn-primary:active { transform:scale(0.97); }
+        .btn-navy {
+            display:inline-flex; align-items:center; justify-content:center; gap:0.5rem;
+            padding:0.875rem 2rem; background:var(--navy); color:white; font-weight:700; font-size:0.95rem;
+            border-radius:9999px; border:none; cursor:pointer; transition:all 0.3s;
+            box-shadow:0 10px 30px -10px rgba(13,27,42,0.5); text-transform:uppercase; letter-spacing:0.05em;
+        }
+        .btn-navy:hover { transform:translateY(-2px); box-shadow:0 15px 40px -10px rgba(13,27,42,0.6); }
+
+        .case-badge {
+            display:inline-flex; align-items:center; gap:0.5rem; padding:0.25rem 1rem;
+            background:rgba(255,255,255,0.5); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.6);
+            border-radius:9999px; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600;
+            color:#64748b; text-transform:uppercase; letter-spacing:0.1em;
+        }
+        .floating-hearts { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0; }
+        .floating-hearts .heart { position:absolute; top:-10%; color:var(--primary-light); opacity:0.3; }
+
+        .polaroid {
+            background:white; padding:0.75rem; padding-bottom:2.5rem;
+            box-shadow:0 4px 6px -1px rgba(0,0,0,0.1),0 2px 4px -1px rgba(0,0,0,0.06),0 10px 15px -3px rgba(0,0,0,0.05);
+            transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s; position:relative;
+        }
+        .polaroid:hover { z-index:40; transform:scale(1.05) rotate(0deg) !important; box-shadow:0 20px 25px -5px rgba(176,212,230,0.4); }
+        .polaroid img { width:100%; aspect-ratio:1; object-fit:cover; filter:grayscale(100%); transition:filter 0.5s; }
+        .polaroid:hover img { filter:grayscale(0%); }
+        .polaroid .caption { font-family:'Caveat',cursive; font-size:1.25rem; color:#475569; text-align:center; margin-top:0.5rem; }
+
+        .pin { width:16px; height:16px; border-radius:50%; position:absolute; top:-8px; left:50%; transform:translateX(-50%); z-index:20; border:2px solid rgba(255,255,255,0.5); box-shadow:1px 2px 3px rgba(0,0,0,0.2); }
+        .pin-pink { background:radial-gradient(circle at 30% 30%,#f472b6,#db2777); }
+        .pin-blue { background:radial-gradient(circle at 30% 30%,#93c5fd,#3b82f6); }
+        .pin-gold { background:radial-gradient(circle at 30% 30%,#ffd700,#b8860b); width:20px; height:20px; top:-10px; }
+
+        .washi { position:absolute; height:24px; width:80px; opacity:0.75; z-index:25; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
+        .washi-pink { background-color:#FFC8DD; }
+        .washi-blue { background-color:#A2D2FF; }
+        .washi-mint { background-color:#B9FBC0; }
+        .washi-yellow { background-color:#FDFD96; }
+
+        .thread-line { stroke:#FFB7B2; stroke-width:3px; stroke-linecap:round; fill:none; opacity:0.6; }
+
+        .progress-bar {
+            position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%);
+            display:flex; gap:0.5rem; z-index:100; padding:0.5rem 1rem;
+            background:rgba(255,255,255,0.4); backdrop-filter:blur(10px); border-radius:9999px; border:1px solid rgba(255,255,255,0.5);
+        }
+        .progress-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.6); transition:all 0.3s; cursor:pointer; }
+        .progress-dot.active { width:24px; border-radius:4px; background:var(--primary); box-shadow:0 0 10px rgba(231,75,112,0.4); }
+
+        .conan-bowtie {
+            background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60"><polygon points="0,0 40,30 0,60" fill="%23e74b70"/><polygon points="100,0 60,30 100,60" fill="%23e74b70"/><circle cx="50" cy="30" r="8" fill="%23c73358"/></svg>');
+            background-repeat:no-repeat; background-size:contain;
+        }
+        .bg-grid {
+            background-image:linear-gradient(rgba(231,75,112,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(231,75,112,0.03) 1px,transparent 1px);
+            background-size:40px 40px;
+        }
+        .bg-dots { background-image:radial-gradient(rgba(178,235,242,0.4) 2px,transparent 2px); background-size:24px 24px; }
+        .bg-cork {
+            background-color:#e0f2fe;
+            background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2393c5fd' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .bg-confetti {
+            background-image:radial-gradient(#93C5FD 2px,transparent 2.5px),radial-gradient(#fff 2px,transparent 2.5px),radial-gradient(#bfdbfe 3px,transparent 3.5px);
+            background-size:60px 60px; background-position:0 0,30px 30px,15px 45px; opacity:0.5;
+        }
+        .torn-bottom::after {
+            content:""; position:absolute; bottom:-6px; left:0; width:100%; height:12px;
+            background-image:linear-gradient(135deg,transparent 66%,#FFFAFA 67%),linear-gradient(45deg,#FFFAFA 33%,transparent 34%);
+            background-size:12px 12px; background-repeat:repeat-x; transform:rotate(180deg);
+        }
+        @media(max-width:768px) {
+            .screen { padding:1rem; }
+            .hide-mobile { display:none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== SCREEN 1: LOCK SCREEN ===== -->
+<div class="screen active" id="screen-lock" style="background:var(--pastel-blue);">
+    <div class="floating-hearts">
+        <span class="heart material-icons animate-fall" style="left:15%;animation-duration:12s;font-size:1.5rem;">favorite</span>
+        <span class="heart material-icons animate-fall" style="left:45%;animation-duration:15s;animation-delay:3s;font-size:1rem;color:white;opacity:0.5;">local_florist</span>
+        <span class="heart material-icons animate-fall" style="left:75%;animation-duration:11s;animation-delay:6s;font-size:2rem;">favorite_border</span>
+        <span class="heart material-icons animate-fall" style="left:85%;animation-duration:13s;animation-delay:4s;font-size:1.8rem;">favorite</span>
+    </div>
+    <div style="position:absolute;top:-10%;left:-10%;width:24rem;height:24rem;background:rgba(255,255,255,0.35);border-radius:50%;filter:blur(80px);"></div>
+    <div style="position:absolute;bottom:-10%;right:-10%;width:24rem;height:24rem;background:rgba(255,143,163,0.25);border-radius:50%;filter:blur(80px);"></div>
+    <main style="position:relative;z-index:10;width:100%;max-width:420px;padding:0 1.5rem;">
+        <div class="glass-card" style="border-radius:1.5rem;padding:2.5rem;text-align:center;position:relative;overflow:hidden;">
+            <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(to right,transparent,rgba(231,75,112,0.4),transparent);"></div>
+            <div style="margin-bottom:1.5rem;">
+                <div style="width:5rem;height:5rem;margin:0 auto;background:rgba(255,255,255,0.7);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,0.05);border:2px solid white;">
+                    <span class="material-icons" style="font-size:2.5rem;color:var(--primary);">search</span>
+                </div>
+                <p class="font-mono" style="color:var(--primary);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;font-weight:700;margin-top:0.75rem;">Confidential</p>
+                <p class="font-mono" style="color:#94a3b8;font-size:0.6rem;letter-spacing:0.15em;">CASE FILE #0803</p>
+            </div>
+            <div style="margin-bottom:2rem;">
+                <h1 class="stamp-text" style="font-size:3rem;font-weight:900;color:rgba(231,75,112,0.75);border:4px solid rgba(231,75,112,0.3);display:inline-block;padding:0.25rem 1rem;border-radius:0.75rem;transform:rotate(-12deg);background:rgba(255,255,255,0.3);backdrop-filter:blur(4px);cursor:help;" title="Top Secret">CLASSIFIED</h1>
+            </div>
+            <div style="margin-bottom:2rem;">
+                <h2 class="font-mono" style="font-size:0.8rem;color:#475569;border-bottom:1px solid rgba(148,163,184,0.2);padding-bottom:0.5rem;display:inline-block;padding-left:2rem;padding-right:2rem;font-weight:600;">AUTHORIZED PERSONNEL ONLY</h2>
+                <p style="font-size:0.75rem;color:#64748b;margin-top:0.5rem;">Identity verification required to access case details.</p>
+            </div>
+            <form onsubmit="event.preventDefault(); checkCode();" style="max-width:280px;margin:0 auto;">
+                <div style="position:relative;margin-bottom:1rem;">
+                    <span class="material-icons" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:rgba(231,75,112,0.5);font-size:1.1rem;">vpn_key</span>
+                    <input type="password" placeholder="ENTER CODE..." id="lock-input" style="width:100%;background:rgba(255,255,255,0.8);border:2px solid rgba(255,255,255,0.5);color:#1e293b;font-family:'JetBrains Mono',monospace;font-size:0.8rem;letter-spacing:0.15em;border-radius:9999px;padding:0.75rem 1rem 0.75rem 3rem;outline:none;transition:border-color 0.3s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='rgba(255,255,255,0.5)'"/>
+                    <p id="lock-error" style="color:var(--primary);font-size:0.7rem;margin-top:0.5rem;display:none;">Wrong code, try again detective!</p>
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%;">
+                    <span>UNLOCK ARCHIVES</span>
+                    <span class="material-icons" style="font-size:1.1rem;">lock_open</span>
+                </button>
+            </form>
+            <div style="margin-top:1.5rem;">
+                <div style="display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.4);padding:0.4rem 1rem;border-radius:9999px;border:1px solid rgba(255,255,255,0.4);cursor:help;">
+                    <span class="material-icons" style="color:rgba(231,75,112,0.6);font-size:0.9rem;">lightbulb</span>
+                    <p style="font-size:0.7rem;color:#64748b;font-style:italic;">Hint: <span style="font-weight:500;">Our anniversary date</span></p>
+                </div>
+            </div>
+        </div>
+        <div style="text-align:center;margin-top:1.5rem;">
+            <p class="font-mono" style="font-size:0.6rem;color:rgba(100,116,139,0.6);text-transform:uppercase;letter-spacing:0.1em;">System Status: <span style="color:#059669;">Secure</span> | Encryption: <span style="color:rgba(231,75,112,0.6);">AES-256</span></p>
+        </div>
+    </main>
+</div>
+
+<!-- ===== SCREEN 2: CASE INTRODUCTION ===== -->
+<div class="screen" id="screen-intro" style="background:linear-gradient(135deg,var(--pastel-blue),var(--cream));">
+    <div class="paper-texture" style="position:absolute;inset:0;pointer-events:none;z-index:1;"></div>
+    <div class="bg-grid" style="position:absolute;inset:0;pointer-events:none;"></div>
+    <div style="position:absolute;bottom:3rem;right:-5%;width:16rem;height:16rem;background:rgba(252,211,221,0.4);border-radius:50%;filter:blur(80px);"></div>
+    <div style="position:absolute;top:3rem;left:-5%;width:16rem;height:16rem;background:rgba(191,219,254,0.4);border-radius:50%;filter:blur(80px);"></div>
+    <main style="position:relative;z-index:10;width:100%;max-width:56rem;padding:0 1.5rem;">
+        <div style="background:var(--paper);box-shadow:0 25px 50px -12px rgba(147,197,253,0.3);border-radius:0.5rem;overflow:hidden;border:1px solid white;position:relative;">
+            <div class="paper-texture" style="position:absolute;inset:0;pointer-events:none;z-index:20;"></div>
+            <div style="height:3.5rem;background:#f8fafc;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;padding:0 2rem;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:0.5rem;opacity:0.5;color:#94a3b8;">
+                    <span class="material-icons" style="font-size:0.9rem;color:#f9a8d4;">favorite</span>
+                    <span class="font-mono" style="font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;">Secret Admirer Document</span>
+                </div>
+                <div style="display:flex;gap:4px;">
+                    <div style="width:10px;height:10px;border-radius:50%;background:#fecaca;"></div>
+                    <div style="width:10px;height:10px;border-radius:50%;background:#fef08a;"></div>
+                    <div style="width:10px;height:10px;border-radius:50%;background:#bbf7d0;"></div>
+                </div>
+            </div>
+            <div style="padding:3rem;text-align:center;position:relative;z-index:15;">
+                <div class="animate-stamp hide-mobile" style="position:absolute;top:1.5rem;right:2rem;opacity:0;animation-delay:0.8s;animation-fill-mode:forwards;z-index:30;">
+                    <div class="stamp-text" style="border:4px solid var(--primary);border-radius:0.5rem;padding:0.25rem 1rem;color:var(--primary);font-weight:900;font-size:1.2rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.6;transform:rotate(12deg);">Top Secret</div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:center;margin-bottom:1rem;">
+                    <div style="width:3rem;height:3rem;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 15px rgba(0,0,0,0.15);outline:4px solid #fce7f3;">
+                        <span class="material-icons" style="font-size:1.5rem;">local_police</span>
+                    </div>
+                </div>
+                <h2 style="font-size:0.7rem;font-weight:700;letter-spacing:0.3em;color:#94a3b8;text-transform:uppercase;">Metropolitan Police Department</h2>
+                <h3 style="font-size:0.65rem;font-weight:600;letter-spacing:0.2em;color:var(--primary);text-transform:uppercase;margin-top:0.25rem;">Love Investigation Unit</h3>
+                <div style="margin:2rem 0;">
+                    <h1 class="font-serif" style="font-size:clamp(2.5rem,6vw,4rem);font-weight:700;color:#1e293b;letter-spacing:-0.02em;text-shadow:2px 2px 0px #ffdbe6;">Case File #0803</h1>
+                    <div style="height:4px;width:4rem;background:#fbcfe8;margin:1.5rem auto;border-radius:2px;"></div>
+                </div>
+                <p class="font-serif" style="font-size:clamp(1.2rem,3vw,1.6rem);color:#475569;font-style:italic;margin-bottom:2rem;">
+                    Code Name: <span style="color:var(--primary);font-weight:500;">Happy Women's Day Stinky</span>
+                </p>
+                <div style="max-width:32rem;margin:0 auto 2rem;background:rgba(255,255,255,0.6);border:1px solid #fce7f3;border-radius:0.75rem;padding:1.5rem;backdrop-filter:blur(4px);text-align:left;position:relative;overflow:hidden;">
+                    <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#f9a8d4;"></div>
+                    <div class="font-mono" style="font-size:0.85rem;color:#475569;">
+                        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;border-bottom:1px dashed #fbcfe8;padding-bottom:0.75rem;margin-bottom:0.75rem;">
+                            <span style="font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;font-size:0.65rem;min-width:10rem;">Detective Assigned</span>
+                            <span style="font-weight:700;color:#1e293b;">Thuong Thoi <span class="material-icons" style="font-size:0.7rem;color:var(--primary);vertical-align:middle;">favorite</span></span>
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem;">
+                            <span style="font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;font-size:0.65rem;min-width:10rem;">Subject</span>
+                            <span style="font-weight:700;color:#1e293b;">Em Iu</span>
+                        </div>
+                        <div style="display:flex;gap:0.5rem;font-size:0.65rem;">
+                            <span style="background:#f1f5f9;padding:0.15rem 0.5rem;border-radius:4px;color:#64748b;font-weight:500;">STATUS: PENDING</span>
+                            <span style="background:#fce7f3;padding:0.15rem 0.5rem;border-radius:4px;color:var(--primary);font-weight:500;">PRIORITY: MAX</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="navigateTo('screen-dossier')" style="font-size:1rem;padding:1rem 2.5rem;">
+                    <span>Open Case File</span>
+                    <span class="material-icons animate-bounce-heart">favorite</span>
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- ===== SCREEN 3: SUSPECT DOSSIER ===== -->
+<div class="screen" id="screen-dossier" style="background:var(--pastel-blue);">
+    <div class="bg-dots" style="position:absolute;inset:0;pointer-events:none;"></div>
+    <span class="material-symbols-outlined hide-mobile" style="position:absolute;top:3rem;left:3rem;font-size:6rem;color:rgba(125,211,252,0.2);transform:rotate(-12deg);pointer-events:none;">search</span>
+    <main style="position:relative;z-index:10;width:100%;max-width:64rem;padding:2rem 1.5rem;">
+        <div style="background:var(--paper);box-shadow:0 25px 50px rgba(0,0,0,0.08);border-radius:1rem;overflow:hidden;border:3px solid rgba(255,255,255,0.5);position:relative;">
+            <div class="washi washi-pink" style="top:-8px;left:50%;transform:translateX(-50%) rotate(1deg);width:8rem;z-index:30;"></div>
+            <div style="padding:2.5rem;position:relative;z-index:5;">
+                <div class="hide-mobile" style="position:absolute;top:1rem;right:1.5rem;transform:rotate(-15deg);opacity:0.6;mix-blend-mode:multiply;pointer-events:none;">
+                    <div style="border:4px dashed var(--primary);color:var(--primary);padding:0.25rem 1rem;font-size:1.2rem;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;border-radius:0.75rem;">Top Secret <span class="material-symbols-outlined" style="vertical-align:middle;font-size:1.2rem;">favorite</span></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr;gap:2rem;" class="dossier-grid">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:1.5rem;">
+                        <div class="polaroid" style="transform:rotate(-3deg);max-width:16rem;width:100%;padding-bottom:3.5rem;">
+                            <div style="aspect-ratio:3/4;overflow:hidden;border-radius:2px;">
+                                <img src="z7525288298607_0696af61b9c3653610abfbb43b5960af.jpg" alt="Thuong Thoi" style="filter:grayscale(0%);aspect-ratio:3/4;"/>
+                            </div>
+                            <p class="font-handwriting caption" style="font-size:1.5rem;margin-top:0.75rem;">Target #001 <span style="color:#f472b6;">&#9829;</span></p>
+                        </div>
+                        <div style="background:white;border:2px solid #fce7f3;border-radius:0.75rem;padding:0.5rem 1rem;transform:rotate(2deg);position:relative;overflow:hidden;">
+                            <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:#fbcfe8;"></div>
+                            <div style="display:flex;align-items:center;gap:0.75rem;">
+                                <div style="width:2rem;height:2rem;border-radius:50%;background:#fce7f3;display:flex;align-items:center;justify-content:center;">
+                                    <span class="material-symbols-outlined" style="font-size:1rem;color:#ec4899;">face_3</span>
+                                </div>
+                                <span class="font-mono" style="font-size:0.65rem;letter-spacing:0.1em;color:#94a3b8;">REF: SWEET-HEART-XOXO</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="border-bottom:2px dashed #fbcfe8;padding-bottom:1rem;margin-bottom:1.5rem;">
+                            <h1 style="font-size:clamp(1.8rem,4vw,2.5rem);font-weight:900;color:#1e293b;text-transform:uppercase;letter-spacing:-0.02em;position:relative;display:inline-block;">
+                                Suspect Profile
+                                <span class="material-symbols-outlined hide-mobile" style="position:absolute;top:-1rem;right:-1.5rem;font-size:2rem;color:#f472b6;transform:rotate(12deg);opacity:0.8;">local_police</span>
+                            </h1>
+                            <p class="font-mono" style="color:#94a3b8;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;margin-top:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+                                <span style="width:8px;height:8px;border-radius:50%;background:#f472b6;"></span>Investigator: Thuong Thoi
+                            </p>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                            <div>
+                                <label style="font-size:0.65rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;gap:0.25rem;"><span class="material-symbols-outlined" style="font-size:0.9rem;color:#f9a8d4;">person</span> Suspect Name</label>
+                                <p class="font-handwriting" style="font-size:1.6rem;color:#1e293b;margin-top:0.25rem;transform:rotate(-1deg);">Tran Thi Huyen Thuong</p>
+                            </div>
+                            <div>
+                                <label style="font-size:0.65rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;gap:0.25rem;"><span class="material-symbols-outlined" style="font-size:0.9rem;color:#f9a8d4;">masks</span> Known Alias</label>
+                                <p class="font-handwriting" style="font-size:1.6rem;color:#1e293b;margin-top:0.25rem;transform:rotate(1deg);">Thuong Thoi</p>
+                            </div>
+                            <div>
+                                <label style="font-size:0.65rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;gap:0.25rem;"><span class="material-symbols-outlined" style="font-size:0.9rem;color:#f9a8d4;">location_on</span> First Seen</label>
+                                <p class="font-handwriting" style="font-size:1.6rem;color:#1e293b;margin-top:0.25rem;">16/09/2025, Muoi</p>
+                            </div>
+                            <div>
+                                <label style="font-size:0.65rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;gap:0.25rem;"><span class="material-symbols-outlined" style="font-size:0.9rem;color:#f9a8d4;">warning</span> Current Status</label>
+                                <p class="font-handwriting" style="font-size:1.6rem;color:var(--primary);font-weight:700;margin-top:0.25rem;transform:rotate(-1deg);">Dangerously Cute!</p>
+                            </div>
+                        </div>
+                        <div style="margin-top:1.5rem;">
+                            <label style="font-size:0.65rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;gap:0.25rem;"><span class="material-symbols-outlined" style="font-size:0.9rem;color:#f9a8d4;">favorite_border</span> Threat Level</label>
+                            <div style="display:flex;align-items:center;gap:1rem;margin-top:0.25rem;">
+                                <span class="font-handwriting" style="font-size:1.4rem;color:#1e293b;">Stole My Heart</span>
+                                <div style="display:flex;gap:2px;">
+                                    <span class="material-symbols-outlined" style="color:var(--primary);font-size:1.2rem;">favorite</span>
+                                    <span class="material-symbols-outlined" style="color:var(--primary);font-size:1.2rem;">favorite</span>
+                                    <span class="material-symbols-outlined" style="color:var(--primary);font-size:1.2rem;">favorite</span>
+                                    <span class="material-symbols-outlined" style="color:var(--primary);font-size:1.2rem;">favorite</span>
+                                    <span class="material-symbols-outlined" style="color:var(--primary);font-size:1.2rem;">favorite</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top:1.5rem;">
+                            <label style="font-size:0.65rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;gap:0.25rem;margin-bottom:0.75rem;"><span class="material-symbols-outlined" style="font-size:0.9rem;color:#f9a8d4;">auto_awesome</span> Special Abilities</label>
+                            <div style="border:2px dashed #f9a8d4;border-radius:1rem;padding:1.25rem;background:rgba(255,255,255,0.6);position:relative;">
+                                <div style="position:absolute;top:-0.75rem;right:0.5rem;background:#fef08a;padding:0.15rem 0.75rem;transform:rotate(3deg);box-shadow:0 2px 4px rgba(0,0,0,0.1);z-index:5;">
+                                    <span class="font-mono" style="font-size:0.55rem;text-transform:uppercase;color:#475569;font-weight:700;letter-spacing:0.1em;">Warning!!</span>
+                                </div>
+                                <ul style="list-style:none;display:flex;flex-direction:column;gap:0.5rem;">
+                                    <li class="font-handwriting" style="font-size:1.3rem;color:#1e293b;display:flex;align-items:flex-start;"><span style="margin-right:0.75rem;color:var(--primary);">&#10047;</span>Turn gloomy day into light for me</li>
+                                    <li class="font-handwriting" style="font-size:1.3rem;color:#1e293b;display:flex;align-items:flex-start;"><span style="margin-right:0.75rem;color:var(--primary);">&#10047;</span>Make me smile the biggest</li>
+                                    <li class="font-handwriting" style="font-size:1.3rem;color:#1e293b;display:flex;align-items:flex-start;"><span style="margin-right:0.75rem;color:var(--primary);">&#10047;</span>Bong's Most Loved Person</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div style="margin-top:2rem;display:flex;justify-content:flex-end;">
+                            <button class="btn-navy" onclick="navigateTo('screen-evidence1')">
+                                <span class="material-symbols-outlined">visibility</span><span>Review Evidence</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <style>@media(min-width:768px){.dossier-grid{grid-template-columns:1fr 2fr !important;}}</style>
+</div>
+
+<!-- ===== SCREEN 4: EVIDENCE BOARD 1 ===== -->
+<div class="screen" id="screen-evidence1" style="background:#E6F3F7;">
+    <div style="position:absolute;inset:0;background-image:radial-gradient(#fff 20%,transparent 20%),radial-gradient(#fff 20%,transparent 20%);background-position:0 0,10px 10px;background-size:20px 20px;pointer-events:none;"></div>
+    <main style="position:relative;z-index:10;width:100%;height:100%;padding:1.5rem;display:flex;flex-direction:column;align-items:center;overflow-y:auto;">
+        <div style="margin-bottom:1.5rem;position:relative;z-index:20;">
+            <div style="background:white;padding:1rem 2.5rem;box-shadow:0 4px 15px rgba(0,0,0,0.08);position:relative;border:1px solid #f1f5f9;" class="torn-bottom">
+                <div class="washi washi-pink" style="top:-10px;left:50%;transform:translateX(-50%) rotate(-1deg);width:6rem;"></div>
+                <h1 style="font-family:'Caveat',cursive;font-size:clamp(1.5rem,4vw,2.5rem);color:#475569;letter-spacing:0.05em;text-transform:uppercase;text-align:center;">Love Investigation</h1>
+                <p class="font-handwriting" style="font-size:1.3rem;color:#f472b6;text-align:center;transform:rotate(-2deg);">Case File: 0803-MYSTERY</p>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.5rem;width:100%;max-width:72rem;padding-bottom:5rem;">
+            <div class="polaroid" style="transform:rotate(-6deg);"><div class="washi washi-blue" style="top:-8px;left:1rem;transform:rotate(-3deg);width:5rem;"></div><div style="aspect-ratio:1;overflow:hidden;border-radius:2px;"><img src="z7525288332710_29e391bf68e1ef2912c04f85bda7e41b.jpg" alt=""/></div><p class="caption">4th Anniversary</p></div>
+            <div class="polaroid" style="transform:rotate(3deg);margin-top:1.5rem;"><div class="pin pin-pink"></div><div style="aspect-ratio:1;overflow:hidden;border-radius:2px;"><img src="z7525288304027_236ea7a99962418cab019851e9815b35.jpg" alt=""/></div><p class="caption">The 'Incident'</p></div>
+            <div class="polaroid" style="transform:rotate(-2deg);"><div class="washi washi-mint" style="top:-6px;right:1rem;transform:rotate(6deg);width:4.5rem;"></div><div style="aspect-ratio:1;overflow:hidden;border-radius:2px;"><img src="z7525288305389_0ae587f711253460eae8c539d640da78.jpg" alt=""/></div><p class="caption">Night Walk</p></div>
+            <div class="polaroid" style="transform:rotate(6deg);margin-top:1rem;"><div class="pin pin-blue"></div><div style="aspect-ratio:1;overflow:hidden;border-radius:2px;"><img src="z7525288382145_43d21a12ad232bdbeb262bd2c8a9c7bf.jpg" alt=""/></div><p class="caption">Weapon of Choice</p></div>
+            <div class="polaroid" style="transform:rotate(-4deg);"><div class="washi washi-yellow" style="top:-8px;left:0.5rem;transform:rotate(-12deg);width:5.5rem;"></div><div style="aspect-ratio:1;overflow:hidden;border-radius:2px;"><img src="z7525288300514_e8c92c1c13029d2cdd6f259fcd407a13.jpg" alt=""/></div><p class="caption">Hand Holding</p></div>
+            <div class="polaroid" style="transform:rotate(2deg);margin-top:-0.5rem;"><div class="washi washi-pink" style="top:-6px;right:0.5rem;transform:rotate(2deg);width:4rem;"></div><div style="aspect-ratio:1;overflow:hidden;border-radius:2px;"><img src="z7525288336537_567e91a24e5962cabb3e8e95569b2291.jpg" alt=""/></div><p class="caption">Contraband</p></div>
+            <div class="polaroid" style="transform:rotate(-5deg);"><div class="pin pin-blue"></div><div style="aspect-ratio:1;overflow:hidden;border-radius:2px;"><img src="z7525288397211_07a5bbcf7dd2b6ff793cf507e009937f.jpg" alt=""/></div><p class="caption">The Surprise</p></div>
+            <div class="polaroid" style="transform:rotate(4deg);margin-top:-0.5rem;"><div class="washi washi-blue" style="top:-8px;left:50%;transform:translateX(-50%);width:5rem;"></div><div style="aspect-ratio:1;overflow:hidden;border-radius:2px;"><img src="z7525288361412_8cc333a463be6a30af762449e3a3b558.jpg" alt=""/></div><p class="caption">Clue #42</p></div>
+            <div class="polaroid" style="transform:rotate(-3deg);"><div class="pin pin-pink"></div><div style="aspect-ratio:1;overflow:hidden;border-radius:2px;"><img src="z7525288382310_dc011dd4b48321681605ed2252a666ce.jpg" alt=""/></div><p class="caption">Stakeout</p></div>
+            <div class="polaroid" style="transform:rotate(5deg);margin-top:-0.5rem;"><div class="washi washi-mint" style="top:-6px;right:1rem;transform:rotate(6deg);width:4.5rem;"></div><div style="aspect-ratio:1;overflow:hidden;border-radius:2px;"><img src="z7525288340992_83acf5aae9adc403d0416cf6f924edab.jpg" alt=""/></div><p class="caption">The Cute Selfie</p></div>
+        </div>
+        <div style="position:fixed;bottom:4rem;right:2rem;z-index:50;">
+            <button onclick="navigateTo('screen-evidence2')" style="background:rgba(255,228,230,0.9);width:8rem;height:8rem;box-shadow:0 4px 15px rgba(0,0,0,0.1);padding:1rem;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:none;transform:rotate(3deg);transition:transform 0.3s;">
+                <span style="font-family:'Caveat',cursive;font-size:1.2rem;color:#475569;line-height:1.2;text-align:center;">Need more<br/>Proof?</span>
+                <div style="display:flex;align-items:center;gap:0.25rem;margin-top:0.5rem;background:rgba(255,255,255,0.5);padding:0.15rem 0.5rem;border-radius:9999px;">
+                    <span style="font-size:0.65rem;font-weight:700;color:#ec4899;text-transform:uppercase;">Investigate</span>
+                    <span class="material-icons" style="font-size:0.9rem;color:#ec4899;">search</span>
+                </div>
+            </button>
+        </div>
+    </main>
+</div>
+
+<!-- ===== SCREEN 5: EVIDENCE BOARD 2 ===== -->
+<div class="screen" id="screen-evidence2" style="background:#e0f2fe;">
+    <div class="bg-cork" style="position:absolute;inset:0;pointer-events:none;"></div>
+    <div style="position:fixed;top:0;left:0;right:0;z-index:50;padding:1rem 1.5rem;pointer-events:none;">
+        <div style="max-width:72rem;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;">
+            <div style="background:rgba(255,255,255,0.9);backdrop-filter:blur(8px);box-shadow:0 4px 15px rgba(0,0,0,0.08);padding:0.5rem 1.25rem;border-radius:0 0 0.75rem 0.75rem;border-top:4px solid var(--conan-blue);pointer-events:auto;">
+                <div style="display:flex;align-items:center;gap:0.75rem;">
+                    <span class="material-icons" style="color:var(--conan-blue);">favorite</span>
+                    <div><h1 style="font-weight:700;color:#1e293b;font-size:0.9rem;">Evidence Board: Phase II</h1><p class="font-mono" style="font-size:0.6rem;color:var(--conan-blue);">CASE #0803</p></div>
+                </div>
+            </div>
+            <div style="background:var(--navy);color:white;padding:0.4rem 1rem;border-radius:9999px;box-shadow:0 4px 10px rgba(0,0,0,0.15);pointer-events:auto;display:flex;align-items:center;gap:0.5rem;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#f472b6;animation:bounce-heart 1.5s infinite;"></span>
+                <span class="font-mono" style="font-size:0.75rem;font-weight:500;">Progress: 5 / 7</span>
+            </div>
+        </div>
+    </div>
+    <main style="position:relative;z-index:10;width:100%;min-height:100vh;padding:5rem 1.5rem 6rem;max-width:72rem;margin:0 auto;overflow-y:auto;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1.5rem 2rem;">
+            <!-- Center: The Suspect -->
+            <div style="grid-column:span 2;grid-row:span 2;display:flex;align-items:center;justify-content:center;padding:1rem;">
+                <div style="position:relative;transform:rotate(2deg);transition:transform 0.7s;">
+                    <div style="position:absolute;inset:-4px;background:#f472b6;border-radius:2px;filter:blur(4px);animation:bounce-heart 2s infinite;"></div>
+                    <div class="pin pin-gold" style="top:-12px;"></div>
+                    <div style="background:white;padding:1rem;padding-bottom:2.5rem;box-shadow:0 0 20px rgba(236,72,153,0.3);border:4px solid #ec4899;animation:sparkle-border 2s infinite;border-radius:2px;position:relative;z-index:10;max-width:280px;">
+                        <div class="washi washi-blue" style="top:-8px;left:-1.5rem;transform:rotate(-25deg);width:5rem;"></div>
+                        <div style="aspect-ratio:4/5;overflow:hidden;border:3px solid #fce7f3;"><img src="z7525288325732_d889406eec6979c0a3b395a508b2ec35.jpg" alt="" style="filter:grayscale(0%);aspect-ratio:4/5;"/></div>
+                        <div style="text-align:center;margin-top:0.75rem;">
+                            <div style="display:inline-flex;align-items:center;gap:0.4rem;background:#fce7f3;color:#ec4899;padding:0.15rem 0.75rem;border-radius:9999px;border:1px solid #fbcfe8;margin-bottom:0.25rem;">
+                                <span class="material-icons" style="font-size:0.7rem;">lock_open</span><span class="font-mono" style="font-size:0.6rem;font-weight:700;">EXHIBIT A-20</span>
+                            </div>
+                            <h2 class="font-handwriting" style="font-size:1.6rem;color:#1e293b;">The Suspect</h2>
+                            <p style="font-size:0.7rem;color:#f472b6;font-style:italic;">Caught Red-Handed stealing my heart</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="polaroid" style="transform:rotate(-3deg);"><div class="pin pin-blue"></div><div style="aspect-ratio:1;overflow:hidden;"><img src="z7525288316416_b7720b353563a0772cb704fc6313f0ed.jpg" alt=""/></div><div style="margin-top:0.5rem;text-align:center;"><span class="font-mono" style="font-size:0.55rem;background:#dbeafe;color:#2563eb;padding:0.1rem 0.4rem;border-radius:9999px;">EXHIBIT A-11</span><p class="font-handwriting caption">Partners in Crime</p></div></div>
+            <div class="polaroid" style="transform:rotate(5deg);"><div class="pin pin-pink"></div><div style="aspect-ratio:1;overflow:hidden;"><img src="z7525288353240_62e486ded1d851788dc4fb93bf1daf12.jpg" alt=""/></div><div style="margin-top:0.5rem;text-align:center;"><span class="font-mono" style="font-size:0.55rem;background:#fce7f3;color:#ec4899;padding:0.1rem 0.4rem;border-radius:9999px;">EXHIBIT A-12</span><p class="font-handwriting caption">Surveillance Photo</p></div></div>
+            <div class="polaroid" style="transform:rotate(-5deg);"><div class="pin pin-blue"></div><div style="aspect-ratio:1;overflow:hidden;"><img src="z7525288359452_38da13b79b67437cf22ae073c92450df.jpg" alt=""/></div><div style="margin-top:0.5rem;text-align:center;"><span class="font-mono" style="font-size:0.55rem;background:#dbeafe;color:#2563eb;padding:0.1rem 0.4rem;border-radius:9999px;">EXHIBIT A-13</span><p class="font-handwriting caption">Caught!</p></div></div>
+            <div class="polaroid" style="transform:rotate(4deg);"><div class="pin pin-pink"></div><div style="aspect-ratio:1;overflow:hidden;"><img src="z7525288364839_1a60ab5b94376d720d64e3cdaa1086af.jpg" alt=""/></div><div style="margin-top:0.5rem;text-align:center;"><span class="font-mono" style="font-size:0.55rem;background:#fce7f3;color:#ec4899;padding:0.1rem 0.4rem;border-radius:9999px;">EXHIBIT A-14</span><p class="font-handwriting caption">The Evidence</p></div></div>
+            <div class="polaroid" style="transform:rotate(2deg);"><div class="pin pin-blue"></div><div style="aspect-ratio:1;overflow:hidden;"><img src="z7525288393353_af0b251c2baafb9a0f04f5e651d2ac39.jpg" alt=""/></div><div style="margin-top:0.5rem;text-align:center;"><span class="font-mono" style="font-size:0.55rem;background:#dbeafe;color:#2563eb;padding:0.1rem 0.4rem;border-radius:9999px;">EXHIBIT A-15</span><p class="font-handwriting caption">Happy Together</p></div></div>
+            <div class="polaroid" style="transform:rotate(-4deg);"><div class="pin pin-pink"></div><div style="aspect-ratio:1;overflow:hidden;"><img src="z7525288346142_36103e1f9d84725f9e5fb841774b7545.jpg" alt=""/></div><div style="margin-top:0.5rem;text-align:center;"><span class="font-mono" style="font-size:0.55rem;background:#fce7f3;color:#ec4899;padding:0.1rem 0.4rem;border-radius:9999px;">EXHIBIT A-16</span><p class="font-handwriting caption">Late Night</p></div></div>
+            <div class="polaroid" style="transform:rotate(3deg);"><div class="pin pin-blue"></div><div style="aspect-ratio:1;overflow:hidden;"><img src="z7525288312433_9f306d2bc3feb122bf2ee0c6a39c3493.jpg" alt=""/></div><div style="margin-top:0.5rem;text-align:center;"><span class="font-mono" style="font-size:0.55rem;background:#dbeafe;color:#2563eb;padding:0.1rem 0.4rem;border-radius:9999px;">EXHIBIT A-17</span><p class="font-handwriting caption">Silly Us</p></div></div>
+            <div class="polaroid" style="transform:rotate(-3deg);"><div class="pin pin-pink"></div><div style="aspect-ratio:1;overflow:hidden;"><img src="New 1.jpg" alt=""/></div><div style="margin-top:0.5rem;text-align:center;"><span class="font-mono" style="font-size:0.55rem;background:#fce7f3;color:#ec4899;padding:0.1rem 0.4rem;border-radius:9999px;">EXHIBIT A-18</span><p class="font-handwriting caption">New Memory 1</p></div></div>
+            <div class="polaroid" style="transform:rotate(4deg);"><div class="washi washi-mint" style="top:-8px;left:1rem;transform:rotate(-3deg);width:5rem;"></div><div style="aspect-ratio:1;overflow:hidden;"><img src="New 2.jpg" alt=""/></div><div style="margin-top:0.5rem;text-align:center;"><span class="font-mono" style="font-size:0.55rem;background:#d1fae5;color:#059669;padding:0.1rem 0.4rem;border-radius:9999px;">EXHIBIT A-19</span><p class="font-handwriting caption">New Memory 2</p></div></div>
+            <div class="polaroid" style="transform:rotate(-2deg);"><div class="pin pin-gold"></div><div style="aspect-ratio:1;overflow:hidden;"><img src="New 3.jpg" alt=""/></div><div style="margin-top:0.5rem;text-align:center;"><span class="font-mono" style="font-size:0.55rem;background:#fef9c3;color:#ca8a04;padding:0.1rem 0.4rem;border-radius:9999px;">EXHIBIT A-20</span><p class="font-handwriting caption">New Memory 3</p></div></div>
+        </div>
+    </main>
+    <div style="position:fixed;bottom:2rem;left:0;right:0;z-index:50;display:flex;justify-content:center;pointer-events:none;">
+        <button class="btn-navy" onclick="navigateTo('screen-confession')" style="pointer-events:auto;font-size:1rem;padding:1rem 2.5rem;box-shadow:0 10px 40px rgba(30,58,138,0.5);border:4px solid rgba(255,255,255,0.1);">
+            <span class="material-icons" style="color:#f472b6;">favorite</span><span>Begin Deduction</span><span class="material-icons" style="color:#93c5fd;">arrow_forward</span>
+        </button>
+    </div>
+</div>
+
+<!-- ===== SCREEN 6: THE CONFESSION / LETTER ===== -->
+<div class="screen" id="screen-confession" style="background:var(--pastel-blue);">
+    <div class="floating-hearts">
+        <span class="heart material-icons animate-fall" style="left:10%;animation-duration:12s;font-size:1.5rem;">favorite</span>
+        <span class="heart material-icons animate-fall" style="left:40%;animation-duration:10s;animation-delay:5s;font-size:2rem;">favorite</span>
+        <span class="heart material-icons animate-fall" style="left:60%;animation-duration:18s;animation-delay:1s;font-size:1rem;color:white;opacity:0.4;">local_florist</span>
+        <span class="heart material-icons animate-fall" style="left:80%;animation-duration:13s;animation-delay:7s;font-size:1.5rem;">favorite_border</span>
+        <span class="heart material-icons animate-fall" style="left:30%;animation-duration:16s;animation-delay:4s;font-size:2.5rem;opacity:0.15;">favorite</span>
+    </div>
+    <header style="position:absolute;top:2rem;left:0;width:100%;display:flex;justify-content:center;opacity:0.8;z-index:20;">
+        <div class="case-badge"><span class="material-icons" style="color:var(--primary-dark);font-size:1rem;">favorite</span><span>The Great Deduction</span></div>
+    </header>
+    <main style="position:relative;z-index:10;width:100%;max-width:48rem;padding:4rem 1.5rem 0;">
+        <div class="hide-mobile" style="position:absolute;top:-3rem;left:-3rem;color:white;opacity:0.8;transform:rotate(-15deg);"><span class="material-icons" style="font-size:4rem;">search</span></div>
+        <div class="glass-card" style="border-radius:1.5rem;padding:3rem;position:relative;overflow:hidden;">
+            <div style="position:absolute;inset:0;background-image:radial-gradient(var(--primary-light) 0.5px,transparent 0.5px),radial-gradient(var(--primary-light) 0.5px,#fff 0.5px);background-size:20px 20px;background-position:0 0,10px 10px;opacity:0.08;pointer-events:none;"></div>
+            <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:1.5rem;">
+                <div style="position:relative;width:5rem;height:5rem;margin-bottom:0.5rem;">
+                    <span class="material-symbols-outlined" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--navy);font-size:4rem;">face_6</span>
+                    <span class="material-symbols-outlined" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--navy);font-size:2.5rem;margin-top:4px;">eyeglasses</span>
+                    <span class="material-icons" style="position:absolute;bottom:-4px;right:-4px;background:white;border-radius:50%;padding:2px;color:var(--primary);font-size:1.5rem;box-shadow:0 2px 4px rgba(0,0,0,0.1);animation:bounce-heart 1.5s infinite;">favorite</span>
+                </div>
+                <div style="height:3px;width:3rem;background:rgba(13,27,42,0.1);border-radius:2px;"></div>
+            </div>
+            <div style="text-align:center;position:relative;z-index:10;">
+                <h1 class="font-handwriting" style="font-size:clamp(3rem,7vw,5rem);color:var(--navy);font-weight:700;line-height:1;">Thuong Thoi,</h1>
+                <div style="font-family:'Dancing Script',cursive;font-size:clamp(1.3rem,3vw,1.8rem);color:rgba(13,27,42,0.85);line-height:1.8;margin-top:2rem;display:flex;flex-direction:column;gap:1.5rem;">
+                    <p>Xin chào người yêu, người yêu cho anh nợ 1 lá thư viết tay anh viết đầy đủ hơn nhé!</p>
+                    <p>Chắc ngyeu là người buồn nhất mùng 8/3 này rồi, chưa có hoa cũng chưa có thiệp chưa có quà nữa, mong là món quà này phần nào bù đắp được cho ngyeu của anh</p>
+                    <p>Mấy ngày anh ốm nói thiệt là anh nhớ người yêu kinh khủng khiếp, càng tệ hơn khi anh với ngyeu còn cãi nhau nữa, anh ghét khoảng cách giữa anh với ngyeu, anh chỉ muốn mình mãi mãi cứ lí lảnh với nhau thôi, anh lo lắng mỗi khi chuẩn bị nói chuyện nghiêm túc với em cũng siêu buồn khi mắng em hay lúc mình không nói chuyện thoải mái với nhau.</p>
+                    <p>Anh yêu sự thoải mái giữa anh với ngyeu lắm, nhân dịp mùng 8/3 chúc ngyeu ngày càng xinh đẹp, dễ thương, lí lảnh, thông minh, chăm chỉ, đáng yêu, tâm lí, ngày càng iu anh hơn.</p>
+                    <p style="font-style:italic;margin-top:0.5rem;">Ngyeu của em,<br/>Duy thúi</p>
+                </div>
+                <div style="padding-top:1.5rem;display:flex;flex-direction:column;align-items:center;opacity:0.75;">
+                    <span style="font-family:'Dancing Script',cursive;font-size:1.5rem;color:rgba(13,27,42,0.7);font-style:italic;transform:rotate(-2deg);">- Your Detective</span>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top:2.5rem;display:flex;flex-direction:column;align-items:center;gap:1rem;">
+            <button class="btn-primary animate-pulse-glow" onclick="navigateTo('screen-iloveyou')" style="font-size:1rem;padding:1rem 3rem;">
+                <span>The Final Truth</span><span class="material-icons">arrow_forward</span>
+            </button>
+            <span class="case-badge" style="opacity:0.6;">Case File #0803 - Confidential</span>
+        </div>
+    </main>
+</div>
+
+<!-- ===== SCREEN 7: I LOVE YOU ===== -->
+<div class="screen" id="screen-iloveyou" style="background:linear-gradient(135deg,#fce7f3,var(--pastel-blue),#fce7f3);">
+    <div class="floating-hearts">
+        <span class="heart material-icons animate-fall" style="left:5%;animation-duration:8s;font-size:2rem;">favorite</span>
+        <span class="heart material-icons animate-fall" style="left:15%;animation-duration:12s;animation-delay:1s;font-size:1.5rem;">favorite</span>
+        <span class="heart material-icons animate-fall" style="left:25%;animation-duration:10s;animation-delay:3s;font-size:1rem;color:white;opacity:0.6;">local_florist</span>
+        <span class="heart material-icons animate-fall" style="left:35%;animation-duration:14s;animation-delay:0.5s;font-size:2.5rem;">favorite_border</span>
+        <span class="heart material-icons animate-fall" style="left:50%;animation-duration:9s;animation-delay:2s;font-size:1.8rem;">favorite</span>
+        <span class="heart material-icons animate-fall" style="left:65%;animation-duration:11s;animation-delay:4s;font-size:1.2rem;color:white;opacity:0.5;">local_florist</span>
+        <span class="heart material-icons animate-fall" style="left:75%;animation-duration:13s;animation-delay:6s;font-size:2rem;">favorite</span>
+        <span class="heart material-icons animate-fall" style="left:90%;animation-duration:10s;animation-delay:1.5s;font-size:1.5rem;">favorite</span>
+    </div>
+
+    <!-- Big floating hearts background -->
+    <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0;">
+        <div style="position:absolute;top:10%;left:10%;color:var(--primary-light);opacity:0.15;animation:float 8s ease-in-out infinite;">
+            <span class="material-symbols-outlined" style="font-size:8rem;font-variation-settings:'FILL' 1;">favorite</span>
+        </div>
+        <div style="position:absolute;bottom:15%;right:10%;color:var(--primary);opacity:0.1;animation:float 6s ease-in-out infinite 2s;">
+            <span class="material-symbols-outlined" style="font-size:10rem;font-variation-settings:'FILL' 1;">favorite</span>
+        </div>
+        <div style="position:absolute;top:40%;right:5%;color:white;opacity:0.2;animation:float 7s ease-in-out infinite 1s;">
+            <span class="material-symbols-outlined" style="font-size:6rem;font-variation-settings:'FILL' 1;">favorite</span>
+        </div>
+    </div>
+
+    <main style="position:relative;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem 1.5rem;width:100%;max-width:56rem;margin:0 auto;">
+        <!-- Couple photo -->
+        <div style="margin-bottom:2rem;position:relative;">
+            <div style="background:white;padding:0.75rem;padding-bottom:2.5rem;box-shadow:0 20px 50px rgba(0,0,0,0.12);transform:rotate(-2deg);max-width:16rem;position:relative;">
+                <div class="washi washi-pink" style="top:-8px;left:50%;transform:translateX(-50%) rotate(2deg);width:5rem;z-index:10;"></div>
+                <div style="aspect-ratio:4/5;overflow:hidden;border-radius:2px;">
+                    <img src="z7525288364839_1a60ab5b94376d720d64e3cdaa1086af.jpg" alt="" style="width:100%;height:100%;object-fit:cover;filter:none;aspect-ratio:4/5;"/>
+                </div>
+                <p class="font-handwriting" style="text-align:center;margin-top:0.5rem;font-size:1.3rem;color:#475569;">Us <span style="color:var(--primary);">&#9829;</span></p>
+            </div>
+        </div>
+
+        <!-- I LOVE YOU text -->
+        <div style="text-align:center;margin-bottom:2rem;">
+            <h1 class="font-serif" style="font-size:clamp(3rem,10vw,7rem);font-weight:700;color:var(--primary);line-height:1;letter-spacing:-0.02em;filter:drop-shadow(0 4px 8px rgba(231,75,112,0.3));">
+                I Love You
+            </h1>
+            <div style="margin-top:1rem;">
+                <span class="material-symbols-outlined animate-heartbeat" style="font-size:4rem;color:var(--primary);font-variation-settings:'FILL' 1;filter:drop-shadow(0 2px 8px rgba(231,75,112,0.4));">favorite</span>
+            </div>
+            <p class="font-handwriting" style="font-size:clamp(1.5rem,4vw,2.5rem);color:var(--navy);opacity:0.7;margin-top:1rem;">Thuong Thoi</p>
+        </div>
+
+        <button class="btn-primary" onclick="navigateTo('screen-finale')" style="font-size:1rem;padding:1rem 2.5rem;">
+            <span>Happy Women's Day</span><span class="material-icons">arrow_forward</span>
+        </button>
+    </main>
+</div>
+
+<!-- ===== SCREEN 8: HAPPY WOMEN'S DAY FINALE ===== -->
+<div class="screen" id="screen-finale" style="background:#FFF8F0;">
+    <div class="paper-texture" style="position:absolute;inset:0;pointer-events:none;z-index:0;mix-blend-mode:multiply;"></div>
+    <div class="bg-confetti" style="position:absolute;inset:0;pointer-events:none;"></div>
+    <div class="floating-hearts">
+        <span class="heart material-icons animate-fall" style="left:10%;animation-duration:10s;font-size:1.5rem;">favorite</span>
+        <span class="heart material-icons animate-fall" style="left:30%;animation-duration:12s;animation-delay:2s;font-size:1rem;color:white;opacity:0.5;">local_florist</span>
+        <span class="heart material-icons animate-fall" style="left:50%;animation-duration:8s;animation-delay:4s;font-size:2rem;">favorite</span>
+        <span class="heart material-icons animate-fall" style="left:70%;animation-duration:14s;animation-delay:1s;font-size:1.2rem;">favorite_border</span>
+        <span class="heart material-icons animate-fall" style="left:90%;animation-duration:11s;animation-delay:3s;font-size:1.8rem;">favorite</span>
+    </div>
+    <div class="hide-mobile" style="position:absolute;top:2rem;right:2rem;width:5rem;height:3rem;opacity:0.7;transform:rotate(12deg);animation:float 7s ease-in-out infinite;pointer-events:none;">
+        <div class="conan-bowtie" style="width:100%;height:100%;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15));"></div>
+    </div>
+
+    <main style="position:relative;z-index:10;width:100%;max-width:56rem;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:2rem;padding:2rem 1.5rem;">
+        <div class="case-badge" style="border:1px solid rgba(231,75,112,0.2);">
+            <span class="material-icons" style="color:var(--primary);font-size:0.8rem;">folder_open</span><span>CASE #0803</span>
+            <span style="width:4px;height:4px;background:#94a3b8;border-radius:50%;"></span>
+            <span style="font-weight:700;color:#1e293b;">STATUS: CLOSED WITH LOVE</span>
+        </div>
+
+        <div style="position:relative;padding:1rem 0;">
+            <div class="animate-stamp" style="border:8px solid var(--primary);color:var(--primary);padding:0.5rem 2rem;border-radius:0.5rem;transform:rotate(-6deg);opacity:0.85;mix-blend-mode:multiply;">
+                <h1 style="font-size:clamp(2rem,6vw,3.5rem);font-weight:900;letter-spacing:0.1em;text-transform:uppercase;text-align:center;line-height:1.1;text-shadow:2px 2px 0px rgba(0,0,0,0.05);">HAPPY<br/>WOMEN'S DAY</h1>
+            </div>
+        </div>
+
+        <div style="background:var(--conan-blue);color:white;padding:0.5rem 2rem;border-radius:9999px;box-shadow:0 4px 15px rgba(74,144,226,0.3);display:flex;align-items:center;gap:0.75rem;">
+            <span class="material-symbols-outlined">verified</span>
+            <span class="font-mono" style="font-weight:700;font-size:1rem;letter-spacing:0.05em;text-transform:uppercase;">Verdict: I Love You</span>
+        </div>
+
+        <div style="width:100%;display:grid;grid-template-columns:1fr;gap:2rem;margin-top:1rem;align-items:center;" class="celebration-grid">
+            <div style="position:relative;display:flex;justify-content:center;">
+                <div style="position:relative;">
+                    <span class="material-icons" style="position:absolute;top:-1.5rem;left:-1.5rem;color:var(--primary);font-size:2rem;animation:bounce-heart 2s infinite;z-index:30;">favorite</span>
+                    <span class="material-icons" style="position:absolute;bottom:-1rem;right:-1rem;color:var(--primary);font-size:1.5rem;animation:bounce-heart 2s infinite 1s;z-index:30;">favorite</span>
+                    <div style="background:white;padding:1rem;padding-bottom:3.5rem;box-shadow:0 25px 50px rgba(0,0,0,0.1);transform:rotate(3deg);position:relative;z-index:10;width:18rem;max-width:100%;">
+                        <div class="washi washi-blue" style="top:-8px;left:50%;transform:translateX(-50%) rotate(1deg);width:6rem;z-index:20;"></div>
+                        <div style="aspect-ratio:4/5;overflow:hidden;border:1px solid #f1f5f9;">
+                            <img src="z7525288393353_af0b251c2baafb9a0f04f5e651d2ac39.jpg" alt="" style="width:100%;height:100%;object-fit:cover;filter:none;aspect-ratio:4/5;"/>
+                        </div>
+                        <div class="font-handwriting" style="position:absolute;bottom:0.75rem;left:0;right:0;text-align:center;font-size:1.4rem;color:#475569;transform:rotate(-1deg);">Forever Together &lt;3</div>
+                    </div>
+                    <div style="position:absolute;top:1rem;left:1rem;width:18rem;max-width:100%;height:calc(100% - 1rem);background:white;box-shadow:0 10px 30px rgba(0,0,0,0.06);transform:rotate(-6deg);z-index:0;border:1px solid #e2e8f0;"></div>
+                </div>
+            </div>
+            <div style="display:flex;flex-direction:column;justify-content:center;max-width:28rem;margin:0 auto;">
+                <div style="background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);padding:2rem;border-radius:0.5rem;border:1px solid rgba(231,75,112,0.15);box-shadow:0 4px 15px rgba(0,0,0,0.03);position:relative;">
+                    <span class="material-symbols-outlined" style="position:absolute;top:-1rem;left:50%;transform:translateX(-50%);font-size:1.8rem;color:#ef4444;">local_activity</span>
+                    <p class="font-handwriting" style="font-size:clamp(1.4rem,3vw,1.8rem);color:#475569;line-height:1.6;transform:rotate(-1deg);">
+                        "To my favorite person in the whole world,<br/><br/>
+                        Happy Women's Day Thuong Thoi! I love you so much. You make every day better just by being you."
+                    </p>
+                    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;align-items:center;gap:0.5rem;">
+                        <span class="font-handwriting" style="font-size:1.4rem;color:var(--primary);font-weight:700;transform:rotate(-2deg);">- Your Detective Duy</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top:2rem;">
+            <a onclick="navigateTo('screen-lock')" style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;color:#94a3b8;cursor:pointer;transition:color 0.3s;" onmouseenter="this.style.color='var(--primary)'" onmouseleave="this.style.color='#94a3b8'">
+                <div style="width:2.5rem;height:2.5rem;border-radius:50%;border:1px solid currentColor;display:flex;align-items:center;justify-content:center;">
+                    <span class="material-icons" style="font-size:1rem;">refresh</span>
+                </div>
+                <span style="font-size:0.6rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Start Over</span>
+            </a>
+        </div>
+    </main>
+    <style>@media(min-width:768px){.celebration-grid{grid-template-columns:1fr 1fr !important;}}</style>
+</div>
+
+<!-- ===== PROGRESS BAR ===== -->
+<div class="progress-bar" id="progress-bar">
+    <div class="progress-dot active" onclick="navigateTo('screen-lock')"></div>
+    <div class="progress-dot" onclick="navigateTo('screen-intro')"></div>
+    <div class="progress-dot" onclick="navigateTo('screen-dossier')"></div>
+    <div class="progress-dot" onclick="navigateTo('screen-evidence1')"></div>
+    <div class="progress-dot" onclick="navigateTo('screen-evidence2')"></div>
+    <div class="progress-dot" onclick="navigateTo('screen-confession')"></div>
+    <div class="progress-dot" onclick="navigateTo('screen-iloveyou')"></div>
+    <div class="progress-dot" onclick="navigateTo('screen-finale')"></div>
+</div>
+
+<!-- ===== SCRIPT ===== -->
+<script>
+const screens = ['screen-lock','screen-intro','screen-dossier','screen-evidence1','screen-evidence2','screen-confession','screen-iloveyou','screen-finale'];
+let currentScreen = 'screen-lock';
+
+function navigateTo(screenId) {
+    if (screenId === currentScreen) return;
+    const current = document.getElementById(currentScreen);
+    const next = document.getElementById(screenId);
+    current.classList.remove('active');
+    current.classList.add('exiting');
+    setTimeout(() => {
+        current.classList.remove('exiting');
+        next.classList.add('active');
+        next.scrollTop = 0;
+        currentScreen = screenId;
+        updateProgress();
+    }, 400);
+}
+
+function updateProgress() {
+    const dots = document.querySelectorAll('.progress-dot');
+    const idx = screens.indexOf(currentScreen);
+    dots.forEach((dot, i) => dot.classList.toggle('active', i === idx));
+}
+
+function checkCode() {
+    const input = document.getElementById('lock-input').value;
+    if (input === '1609') {
+        navigateTo('screen-intro');
+    } else {
+        document.getElementById('lock-error').style.display = 'block';
+        document.getElementById('lock-input').value = '';
+        setTimeout(() => document.getElementById('lock-error').style.display = 'none', 3000);
+    }
+}
+</script>
+</body>
+</html>
